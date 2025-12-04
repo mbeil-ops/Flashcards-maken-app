@@ -1,0 +1,5 @@
+{
+  "name": "Flashcard PDF Generator",
+  "description": "A specialized tool to convert Excel lists of concepts and definitions into double-sided, perfectly aligned printable flashcards PDF.",
+  "requestFramePermissions": []
+}
