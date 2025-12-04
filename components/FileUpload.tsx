@@ -61,10 +61,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
             onChange={handleFileChange}
         />
       </label>
-      <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400 font-medium">
-        <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
-        Rij 1 wordt overgeslagen als het een koptekst lijkt
-      </div>
     </div>
   );
 };
