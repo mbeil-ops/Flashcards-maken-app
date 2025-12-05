@@ -100,9 +100,9 @@ const drawCard = (
   
   // 1. Base Pastel Color
   if (isFront) {
-    doc.setFillColor(248, 250, 252); // Slate-50 / Very light indigo
+    doc.setFillColor(248, 250, 252); // Slate-50
   } else {
-    doc.setFillColor(240, 253, 244); // Green-50 / Very light green
+    doc.setFillColor(240, 253, 244); // Green-50
   }
   
   doc.rect(x, y, w, h, 'F');
@@ -125,23 +125,53 @@ const drawCard = (
     doc.setLineDash([], 0); // Reset
   }
 
-  // --- Text ---
+  // --- Text with Auto-Fit ---
   if (text) {
     doc.setFont(fontName);
-    doc.setFontSize(12);
     doc.setTextColor(30, 41, 59); // Slate-800
     
-    // Text Wrapping
-    const textPadding = 8;
+    const textPadding = 6;
     const maxTextWidth = w - (textPadding * 2);
-    
-    const textLines = doc.splitTextToSize(text, maxTextWidth);
-    
-    const lineHeight = 5; 
-    const totalTextHeight = textLines.length * lineHeight;
-    const startY = y + (h / 2) - (totalTextHeight / 2) + (lineHeight / 1.5);
+    const maxTextHeight = h - (textPadding * 2);
 
-    doc.text(textLines, x + (w / 2), startY, { align: 'center' });
+    // Initial settings
+    let fontSize = 14; 
+    const minFontSize = 6;
+    const lineSpacingFactor = 1.2;
+    const ptToMm = 0.3528; // 1 pt = ~0.3528 mm
+
+    let textLines: string[] = [];
+    let totalBlockHeight = 0;
+
+    // Iteratively reduce font size until text fits vertically
+    while (fontSize >= minFontSize) {
+        doc.setFontSize(fontSize);
+        textLines = doc.splitTextToSize(text, maxTextWidth);
+        
+        const lineHeightMm = fontSize * ptToMm * lineSpacingFactor;
+        totalBlockHeight = textLines.length * lineHeightMm;
+
+        if (totalBlockHeight <= maxTextHeight) {
+            break; 
+        }
+        
+        fontSize -= 0.5;
+    }
+
+    // Apply final calculated font size
+    doc.setFontSize(fontSize);
+    
+    // Recalculate lines one last time to be sure (splitTextToSize uses current font size)
+    textLines = doc.splitTextToSize(text, maxTextWidth);
+    const lineHeightMm = fontSize * ptToMm * lineSpacingFactor;
+    totalBlockHeight = textLines.length * lineHeightMm;
+
+    // Calculate Vertical Center
+    // StartY = BoxCenterY - HalfBlockHeight + BaselineCorrection
+    // Baseline correction for jsPDF text is roughly fontSize * 0.8 (ascent)
+    const startY = y + ((h - totalBlockHeight) / 2) + (fontSize * ptToMm * 0.8);
+
+    doc.text(textLines, x + (w / 2), startY, { align: 'center', lineHeightFactor: lineSpacingFactor });
   }
 };
 
@@ -163,13 +193,11 @@ const getMirroredLayout = (
             if (mode === 'vertical') {
                 // VERTICAL FLIP (Mirror Rows)
                 // Front Row 1 -> Back Row 3
-                // Front: 1, 2, 3 -> Back: 7, 8, 9
                 const newRow = (rows - 1) - r;
                 targetIndex = (newRow * cols) + c;
             } else if (mode === 'horizontal') {
                 // HORIZONTAL FLIP (Mirror Columns)
-                // This matches the specific requirement: "Rij 1: D3, D2, D1"
-                // Front: 1, 2, 3 -> Back: 3, 2, 1
+                // Front Row 1: D1, D2, D3 -> Back Row 1: D3, D2, D1
                 const newCol = (cols - 1) - c;
                 targetIndex = (r * cols) + newCol;
             }
