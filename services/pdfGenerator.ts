@@ -135,7 +135,8 @@ const drawCard = (
     const maxTextHeight = h - (textPadding * 2);
 
     // Initial settings
-    let fontSize = 14; 
+    // Default to 14 for Front (Column A), 10 for Back (Column B)
+    let fontSize = isFront ? 14 : 10; 
     const minFontSize = 6;
     const lineSpacingFactor = 1.2;
     const ptToMm = 0.3528; // 1 pt = ~0.3528 mm

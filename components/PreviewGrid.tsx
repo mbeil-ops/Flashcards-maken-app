@@ -15,11 +15,14 @@ export const PreviewGrid: React.FC<PreviewGridProps> = ({ cards, mirrorMode, fon
   const gridItems = [...previewCards, ...Array(9 - previewCards.length).fill(null)];
 
   // Helper to approximate font size class based on text length
-  const getFontSizeClass = (text: string) => {
+  // Added isBack parameter to allow default smaller font for back of card
+  const getFontSizeClass = (text: string, isBack: boolean = false) => {
     if (text.length > 200) return 'text-[7px] leading-tight';
     if (text.length > 120) return 'text-[8px] leading-tight';
     if (text.length > 60) return 'text-[9px] leading-snug';
-    return 'text-[10px] sm:text-xs leading-relaxed';
+    
+    // Back uses smaller default font (10 vs 12/14)
+    return isBack ? 'text-[10px] leading-relaxed' : 'text-[10px] sm:text-xs leading-relaxed';
   };
 
   return (
@@ -45,7 +48,7 @@ export const PreviewGrid: React.FC<PreviewGridProps> = ({ cards, mirrorMode, fon
                 
                 {item ? (
                     <>
-                        <span className={`relative z-10 font-bold text-slate-800 ${getFontSizeClass(item.front)}`}>
+                        <span className={`relative z-10 font-bold text-slate-800 ${getFontSizeClass(item.front, false)}`}>
                             {item.front}
                         </span>
                         <div className="absolute top-1 left-1.5 text-[8px] font-bold text-indigo-300 font-sans">
@@ -140,7 +143,7 @@ export const PreviewGrid: React.FC<PreviewGridProps> = ({ cards, mirrorMode, fon
 
                     {item ? (
                         <>
-                            <span className={`relative z-10 text-slate-600 ${getFontSizeClass(item.back)}`}>
+                            <span className={`relative z-10 text-slate-600 ${getFontSizeClass(item.back, true)}`}>
                                 {item.back}
                             </span>
                             {originalIndex !== -1 && (
